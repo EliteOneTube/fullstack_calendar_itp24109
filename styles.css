@@ -1,0 +1,254 @@
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f9fc;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 2em;
+    color: #4a90e2;
+    margin-bottom: 20px;
+}
+
+/* Calendar Container */
+#calendar-container {
+    width: 90%;
+    max-width: 800px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    margin-top: 5rem;
+}
+
+#calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#calendar-controls button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4a90e2;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#calendar-controls button:hover {
+    background-color: #357abd;
+}
+
+#current-month {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+#days-of-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* Ensure 7 equal columns */
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #4a90e2;
+    margin-bottom: 10px;
+}
+
+.day-of-week {
+    padding: 10px 0;
+    background-color: #f1f3f6;
+    border-radius: 5px;
+    text-transform: uppercase; /* Optional: Make text uppercase */
+}
+
+#calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+}
+
+.day {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    text-align: right;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.day.blank:hover {
+    background-color: inherit;
+    transform: none;
+}
+
+.day:hover {
+    background-color: #e8f4fc;
+    border-color: #4a90e2;
+    transform: scale(1.05);
+}
+
+.blank {
+    background-color: #f9f9f9;
+    border: none;
+    cursor: default;
+}
+
+/* Modal Styles */
+#event-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+}
+
+#event-modal::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.hidden {
+    display: none;
+}
+
+#event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#event-form label {
+    font-size: 14px;
+    color: #666;
+}
+
+#event-form input,
+#event-form textarea,
+#event-form button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#event-form input:focus,
+#event-form textarea:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 4px rgba(74, 144, 226, 0.5);
+}
+
+#event-form textarea {
+    resize: none;
+    height: 80px;
+}
+
+#event-form button {
+    background-color: #4a90e2;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#event-form button:hover {
+    background-color: #357abd;
+}
+
+/* Search Bar and Export Button */
+#search-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+#search-bar {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#search-bar:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 4px rgba(74, 144, 226, 0.5);
+}
+
+#export-events {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4a90e2;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#export-events:hover {
+    background-color: #357abd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #calendar {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    #calendar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+#prev-month {
+    margin-right: 5rem;
+}
+
+#next-month {
+    margin-left: 5rem;
+}
