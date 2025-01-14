@@ -9,7 +9,7 @@ const currentMonthDisplay = document.getElementById('current-month');
 const prevMonthButton = document.getElementById('prev-month');
 const nextMonthButton = document.getElementById('next-month');
 
-let events = [];
+let events = {}; // Change from array to object
 let activeDate = new Date();
 
 const months = [
@@ -47,7 +47,7 @@ function createCalendar() {
         const selectedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
         // Check if there are events on this date
-        const eventsOnThisDay = events.filter(event => event.date === selectedDate);
+        const eventsOnThisDay = events[selectedDate] || [];
         if (eventsOnThisDay.length > 0) {
             const eventIndicator = document.createElement('span');
             eventIndicator.className = 'event-indicator';
@@ -105,14 +105,14 @@ function openEventModal(day, eventsOnThisDay, selectedDate) {
 
             // Edit Event
             listItem.querySelector('.edit-event').addEventListener('click', () => {
-                populateFormForEdit(event, index);
+                populateFormForEdit(event, selectedDate, index);
             });
 
             // Delete Event
             listItem.querySelector('.delete-event').addEventListener('click', () => {
-                deleteEvent(index);
+                deleteEvent(selectedDate, index);
                 createCalendar(); // Refresh calendar
-                openEventModal(day, events.filter(e => e.date === selectedDate), selectedDate);
+                openEventModal(day, events[selectedDate] || [], selectedDate);
             });
         });
     } else {
@@ -120,19 +120,31 @@ function openEventModal(day, eventsOnThisDay, selectedDate) {
     }
 }
 
-function populateFormForEdit(event, index) {
+function populateFormForEdit(event, date, index) {
     document.getElementById('event-title').value = event.title;
     document.getElementById('event-description').value = event.description;
-    document.getElementById('event-date').value = event.date;
+    document.getElementById('event-date').value = date;
     document.getElementById('event-time').value = event.time;
-    eventModal.dataset.editIndex = index; // Store index for saving
+    eventModal.dataset.editIndex = index;
+    eventModal.dataset.editDate = date;
 }
 
-closeModalButton.addEventListener('click', () => {
-    eventModal.classList.add('hidden');
-    eventModal.dataset.editIndex = undefined; // Clear edit mode
-    eventForm.reset();
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !eventModal.classList.contains('hidden')) {
+        closeModal();
+    }
 });
+
+// Refactor close modal logic into a function
+function closeModal() {
+    eventModal.classList.add('hidden');
+    eventModal.dataset.editIndex = null;
+    eventModal.dataset.editDate = null;
+    eventForm.reset();
+}
+
+// Update the close button event listener to use the closeModal function
+closeModalButton.addEventListener('click', closeModal);
 
 eventForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -140,40 +152,55 @@ eventForm.addEventListener('submit', (e) => {
     const description = document.getElementById('event-description').value;
     const date = document.getElementById('event-date').value;
     const time = document.getElementById('event-time').value;
-
+    
     const editIndex = eventModal.dataset.editIndex;
-    if (editIndex !== undefined) {
+    const editDate = eventModal.dataset.editDate;
+
+    if (editIndex !== null && editDate === date) {
         // Update existing event
-        events[editIndex] = { title, description, date, time };
-        eventModal.dataset.editIndex = undefined; // Clear edit mode
+        events[date][editIndex] = { title, description, date, time };
     } else {
         // Add new event
-        events.push({ title, description, date, time });
+        if (!events[date]) {
+            events[date] = [];
+        }
+        events[date].push({ title, description, date, time });
     }
 
     showNotification('Το συμβάν αποθηκεύτηκε επιτυχώς!');
     eventModal.classList.add('hidden');
+    eventModal.dataset.editIndex = null;
+    eventModal.dataset.editDate = null;
     eventForm.reset();
     createCalendar(); // Refresh calendar
 });
 
-function deleteEvent(index) {
-    events.splice(index, 1); // Remove event from array
-    showNotification('Το συμβάν διαγράφηκε.');
+function deleteEvent(date, index) {
+    if (events[date]) {
+        events[date].splice(index, 1);
+        if (events[date].length === 0) {
+            delete events[date];
+        }
+        showNotification('Το συμβάν διαγράφηκε.');
+    }
 }
 
 searchInput.addEventListener('input', () => {
     const query = searchInput.value.toLowerCase();
-    const filteredEvents = events.filter(event =>
-        event.title.toLowerCase().includes(query) ||
-        event.date.includes(query)
+    const filteredEvents = Object.entries(events).flatMap(([date, eventList]) =>
+        eventList.filter(event =>
+            event.title.toLowerCase().includes(query) ||
+            date.includes(query)
+        )
     );
     console.log('Αποτελέσματα Αναζήτησης:', filteredEvents);
 });
 
 exportButton.addEventListener('click', () => {
     const csvContent = "data:text/csv;charset=utf-8,"
-        + events.map(e => `${e.title},${e.description},${e.date},${e.time}`).join("\n");
+        + Object.entries(events).flatMap(([date, eventList]) =>
+            eventList.map(e => `${e.title},${e.description},${date},${e.time}`)
+        ).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
