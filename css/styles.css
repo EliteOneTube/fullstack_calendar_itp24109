@@ -29,6 +29,7 @@ h1 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 #calendar-controls {
@@ -117,18 +118,32 @@ h1 {
     cursor: default;
 }
 
-#event-modal {
+#modal-overlay {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border-radius: 10px;
-    padding: 35px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 400px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#modal-overlay.hidden {
+    display: none;
+}
+
+#event-modal {
+    background: #fff;
+    padding: 35px;
+    border-radius: 8px;
+    position: relative;
+    z-index: 1001;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .hidden {
@@ -149,12 +164,72 @@ h1 {
 #event-form input,
 #event-form textarea,
 #event-form button {
-    width: 100%;
     padding: 10px;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     font-size: 14px;
 }
+
+#event-modal input[type="time"]:disabled {
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+}
+
+#calendar th {
+    font-size: 18px;
+    padding: 15px;
+    text-align: center;
+    color: #4a90e2;
+}
+
+#calendar td {
+    font-size: 16px;
+    padding: 20px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#calendar td:hover {
+    background-color: #e8f4fc;
+    border-color: #4a90e2;
+    transform: scale(1.05);
+}
+
+#calendar {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead th {
+    font-weight: bold;
+    font-size: 20px;
+    padding: 20px;
+    background-color: #f1f3f6;
+    border-radius: 5px;
+}
+
+#close-modal-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#close-modal-button:hover {
+    color: #f44336;
+}
+
 
 #event-form input:focus,
 #event-form textarea:focus {
@@ -195,30 +270,6 @@ h1 {
     padding: 10px;
     margin-bottom: 10px;
     margin-top: 10px;
-}
-
-#search-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 20px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-#search-bar {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-#search-bar:focus {
-    outline: none;
-    border-color: #4a90e2;
-    box-shadow: 0 0 4px rgba(74, 144, 226, 0.5);
 }
 
 #export-events {
@@ -312,4 +363,65 @@ h1 {
         opacity: 0;
         transform: translateY(-10px);
     }
+}
+
+#event-modal button[type="submit"] {
+    background: #007bff;
+    color: white;
+}
+
+#event-modal button[type="submit"]:hover {
+    background: #0056b3;
+}
+
+#event-modal button#close-modal {
+    background: #dc3545;
+    color: white;
+}
+
+#event-modal button#close-modal:hover {
+    background: #a71d2a;
+}
+
+#event-modal #event-list {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+#event-modal .event-item {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#event-modal .event-item button {
+    margin-left: 10px;
+    background: #6c757d;
+    color: white;
+}
+
+#event-modal .event-item button:hover {
+    background: #5a6268;
+}
+
+.all-day-label {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500; /* Optional: make the text slightly bold */
+    cursor: pointer; /* Changes the cursor to indicate it's clickable */
+}
+
+#all-day-event {
+    cursor: pointer;
+}
+
+#event-modal label[for="all-day-event"] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-weight: 500;
 }

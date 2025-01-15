@@ -8,6 +8,10 @@ const exportButton = document.getElementById('export-events');
 const currentMonthDisplay = document.getElementById('current-month');
 const prevMonthButton = document.getElementById('prev-month');
 const nextMonthButton = document.getElementById('next-month');
+const modalOverlay = document.getElementById('modal-overlay');
+const allDayEventCheckbox = document.getElementById('all-day-event');
+const eventTimeInput = document.getElementById('event-time');
+const dropdown = document.getElementById('search-results');
 
 let events = {}; // Change from array to object
 let activeDate = new Date();
@@ -83,20 +87,38 @@ nextMonthButton.addEventListener('click', () => {
     createCalendar();
 });
 
+allDayEventCheckbox.addEventListener('change', () => {
+    if (allDayEventCheckbox.checked) {
+        eventTimeInput.disabled = true; // Disable time input
+        eventTimeInput.value = ''; // Clear time input
+    } else {
+        eventTimeInput.disabled = false; // Enable time input
+        const now = new Date(); // Set default time again
+        const currentHour = String(now.getHours()).padStart(2, '0');
+        const currentMinute = String(now.getMinutes()).padStart(2, '0');
+        eventTimeInput.value = `${currentHour}:${currentMinute}`;
+    }
+});
+
 function openEventModal(day, eventsOnThisDay, selectedDate) {
-    eventModal.classList.remove('hidden');
+    modalOverlay.classList.remove('hidden');
     modalTitle.textContent = `Συμβάντα για ${day}/${activeDate.getMonth() + 1}/${activeDate.getFullYear()}`;
     document.getElementById('event-date').value = selectedDate;
 
     const eventList = document.getElementById('event-list');
-    eventList.innerHTML = ''; // Clear previous list
+    eventList.innerHTML = '';
 
+    // Preselect current time
+    const now = new Date();
+    const currentHour = String(now.getHours()).padStart(2, '0');
+    const currentMinute = String(now.getMinutes()).padStart(2, '0');
+    eventTimeInput.value = `${currentHour}:${currentMinute}`;
     if (eventsOnThisDay.length > 0) {
         eventsOnThisDay.forEach((event, index) => {
             const listItem = document.createElement('div');
             listItem.className = 'event-item';
             listItem.innerHTML = `
-                <h4>${event.title} (${event.time})</h4>
+                <h4>${event.title} (${event.isAllDay ? 'Όλη την ημέρα' : event.time})</h4>
                 <p>${event.description}</p>
                 <button data-index="${index}" class="edit-event">Επεξεργασία</button>
                 <button data-index="${index}" class="delete-event">Διαγραφή</button>
@@ -124,7 +146,15 @@ function populateFormForEdit(event, date, index) {
     document.getElementById('event-title').value = event.title;
     document.getElementById('event-description').value = event.description;
     document.getElementById('event-date').value = date;
-    document.getElementById('event-time').value = event.time;
+    if (event.isAllDay) {
+        allDayEventCheckbox.checked = true;
+        eventTimeInput.disabled = true;
+        eventTimeInput.value = '';
+    } else {
+        allDayEventCheckbox.checked = false;
+        eventTimeInput.disabled = false;
+        eventTimeInput.value = event.time;
+    }
     eventModal.dataset.editIndex = index;
     eventModal.dataset.editDate = date;
 }
@@ -135,13 +165,20 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Refactor close modal logic into a function
 function closeModal() {
-    eventModal.classList.add('hidden');
+    modalOverlay.classList.add('hidden');
     eventModal.dataset.editIndex = null;
     eventModal.dataset.editDate = null;
+    allDayEventCheckbox.checked = false;
     eventForm.reset();
 }
+
+// Close modal on overlay click
+modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+        closeModal();
+    }
+});
 
 // Update the close button event listener to use the closeModal function
 closeModalButton.addEventListener('click', closeModal);
@@ -151,27 +188,25 @@ eventForm.addEventListener('submit', (e) => {
     const title = document.getElementById('event-title').value;
     const description = document.getElementById('event-description').value;
     const date = document.getElementById('event-date').value;
-    const time = document.getElementById('event-time').value;
-    
+    const isAllDay = allDayEventCheckbox.checked;
+    const time = isAllDay ? 'Όλη την ημέρα' : document.getElementById('event-time').value;
+
     const editIndex = eventModal.dataset.editIndex;
     const editDate = eventModal.dataset.editDate;
 
     if (editIndex !== null && editDate === date) {
         // Update existing event
-        events[date][editIndex] = { title, description, date, time };
+        events[date][editIndex] = { title, description, date, time, isAllDay };
     } else {
         // Add new event
         if (!events[date]) {
             events[date] = [];
         }
-        events[date].push({ title, description, date, time });
+        events[date].push({ title, description, date, time, isAllDay });
     }
 
     showNotification('Το συμβάν αποθηκεύτηκε επιτυχώς!');
-    eventModal.classList.add('hidden');
-    eventModal.dataset.editIndex = null;
-    eventModal.dataset.editDate = null;
-    eventForm.reset();
+    closeModal();
     createCalendar(); // Refresh calendar
 });
 
@@ -187,14 +222,45 @@ function deleteEvent(date, index) {
 
 searchInput.addEventListener('input', () => {
     const query = searchInput.value.toLowerCase();
+    dropdown.innerHTML = '';
+
+    if (!query) {
+        dropdown.classList.add('hidden');
+        createCalendar(); // Show full calendar when search is cleared
+        return;
+    }
+
     const filteredEvents = Object.entries(events).flatMap(([date, eventList]) =>
-        eventList.filter(event =>
+        eventList.map(event => ({
+            ...event,
+            date
+        })).filter(event =>
             event.title.toLowerCase().includes(query) ||
             date.includes(query)
         )
     );
-    console.log('Αποτελέσματα Αναζήτησης:', filteredEvents);
+
+    if (filteredEvents.length > 0) {
+        dropdown.classList.remove('hidden');
+        filteredEvents.forEach(event => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.textContent = `${event.title} (${event.date})`;
+            item.addEventListener('click', () => {
+                searchInput.value = event.title;
+                dropdown.classList.add('hidden');
+                const [year, month, day] = event.date.split('-').map(Number);
+                populateFormForEdit(event, event.date, events[event.date].indexOf(event));
+                openEventModal(day, events[event.date], event.date);
+                searchInput.value = '';
+            });
+            dropdown.appendChild(item);
+        });
+    } else {
+        dropdown.classList.add('hidden');
+    }
 });
+
 
 exportButton.addEventListener('click', () => {
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -221,11 +287,14 @@ function showNotification(message, type = 'success') {
 
     container.appendChild(notification);
 
-    // Automatically remove the notification after 4 seconds
     setTimeout(() => {
         notification.remove();
     }, 4000);
 }
+
+document.getElementById('close-modal-button').addEventListener('click', function () {
+    closeModal();
+});
 
 // Initialize the calendar
 createCalendar();

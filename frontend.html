@@ -4,13 +4,27 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Σύστημα Διαχείρισης Ημερολογίου</title>
-        <link rel="stylesheet" href="styles.css">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="./css/styles.css">
+        <link rel="stylesheet" href="./css/dropdown.css">
+        <link rel="stylesheet" href="./css/searchbar.css">
     </head>    
     
     <body>
         <div id="calendar-container">
             <h1>Ημερολόγιο</h1>
+
+            <div style="position: relative; margin-bottom: 10px;">
+                <input type="text" id="search-bar" placeholder="Αναζήτηση συμβάντων...">
+                <div id="search-results" class="dropdown hidden"></div>
+            </div>
+
+            <div id="calendar-controls">
+                <button id="prev-month">Προηγούμενος</button>
+                <span id="current-month">Ιανουάριος 2024</span>
+                <button id="next-month">Επόμενος</button>
+            </div>
+
             <table id="calendar">
                 <thead>
                     <tr>
@@ -28,28 +42,28 @@
             </table>
         </div>
 
-        <div id="event-modal" class="hidden">
-            <form id="event-form">
-                <h2 id="modal-title">Νέο Συμβάν</h2>
-                <label>Τίτλος: <input type="text" id="event-title" required></label>
-                <label>Περιγραφή: <textarea id="event-description"></textarea></label>
-                <label>Ημερομηνία: <input type="date" id="event-date" required></label>
-                <label>Ώρα: <input type="time" id="event-time" required></label>
-                <button type="submit">Αποθήκευση</button>
-                <button type="button" id="close-modal">Ακύρωση</button>
-            </form>
-            <div id="event-list"></div>
+        <div id="modal-overlay" class="hidden">
+            <div id="event-modal">
+                <button id="close-modal-button" aria-label="Close modal">&times;</button>
+                <form id="event-form">
+                    <h2 id="modal-title">Νέο Συμβάν</h2>
+                    <label>Τίτλος: <input type="text" id="event-title" required></label>
+                    <label>Περιγραφή: <textarea id="event-description"></textarea></label>
+                    <label>Ημερομηνία: <input type="date" id="event-date" required></label>
+                    <label class="all-day-label">
+                        <input type="checkbox" id="all-day-event">
+                        Όλη την ημέρα
+                    </label>
+                    <label>Ώρα: <input type="time" id="event-time" required></label>
+                    <button type="submit">Αποθήκευση</button>
+                    <button type="button" id="close-modal">Ακύρωση</button>
+                </form>
+                <div id="event-list"></div>
+            </div>
         </div>
 
         <div id="search-container">
-            <input type="text" id="search-bar" placeholder="Αναζήτηση Συμβάντων">
             <button id="export-events">Εξαγωγή Συμβάντων</button>
-        </div>
-
-        <div id="calendar-controls">
-            <button id="prev-month">Προηγούμενος</button>
-            <span id="current-month">Ιανουάριος 2024</span>
-            <button id="next-month">Επόμενος</button>
         </div>
         
         <div id="notification-container"></div>
