@@ -205,6 +205,7 @@ eventForm.addEventListener('submit', (e) => {
         events[date].push({ title, description, date, time, isAllDay });
     }
 
+    saveEventsToLocalStorage(); // Save to localStorage
     showNotification('Το συμβάν αποθηκεύτηκε επιτυχώς!');
     closeModal();
     createCalendar(); // Refresh calendar
@@ -216,6 +217,7 @@ function deleteEvent(date, index) {
         if (events[date].length === 0) {
             delete events[date];
         }
+        saveEventsToLocalStorage(); // Save to localStorage
         showNotification('Το συμβάν διαγράφηκε.');
     }
 }
@@ -318,6 +320,19 @@ function showNotification(message, type = 'success') {
 document.getElementById('close-modal-button').addEventListener('click', function () {
     closeModal();
 });
+
+function saveEventsToLocalStorage() {
+    localStorage.setItem('events', JSON.stringify(events));
+}
+
+function loadEventsFromLocalStorage() {
+    const storedEvents = localStorage.getItem('events');
+    if (storedEvents) {
+        events = JSON.parse(storedEvents);
+    }
+}
+
+loadEventsFromLocalStorage();
 
 // Initialize the calendar
 createCalendar();
