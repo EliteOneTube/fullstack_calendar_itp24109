@@ -261,13 +261,36 @@ searchInput.addEventListener('input', () => {
     }
 });
 
-
+//Listen for export button click
 exportButton.addEventListener('click', () => {
-    const csvContent = "data:text/csv;charset=utf-8,"
-        + Object.entries(events).flatMap(([date, eventList]) =>
-            eventList.map(e => `${e.title},${e.description},${date},${e.time}`)
-        ).join("\n");
-    const encodedUri = encodeURI(csvContent);
+    if(Object.keys(events).length === 0) {
+        showNotification('Δεν υπάρχουν συμβάντα για εξαγωγή.', 'error');
+        return;
+    }
+
+    const header = "Τίτλος;Περιγραφή;Ημερομηνία;Ώρα\n"; 
+
+    const rows = Object.entries(events).flatMap(([date, eventList]) =>
+        eventList.map(e =>
+            [
+                `"${e.title}"`,        // Enclose in quotes to handle special characters
+                `"${e.description}"`,
+                `"${date}"`,
+                `"${e.time}"`
+            ].join(';')              // Use semicolon as the delimiter
+        )
+    );
+
+    // Combine header and rows
+    const csvContent = header + rows.join("\n");
+
+    // Add UTF-8 BOM for compatibility
+    const bom = '\uFEFF';
+
+    // Encode the CSV content
+    const encodedUri = encodeURI("data:text/csv;charset=utf-8," + bom + csvContent);
+
+    // Create and trigger the download link
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", "events.csv");

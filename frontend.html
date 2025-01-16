@@ -8,6 +8,9 @@
         <link rel="stylesheet" href="./css/styles.css">
         <link rel="stylesheet" href="./css/dropdown.css">
         <link rel="stylesheet" href="./css/searchbar.css">
+        <link rel="stylesheet" href="./css/export.css">
+        <link rel="stylesheet" href="./css/eventModal.css">
+        <link rel="stylesheet" href="./css/notification.css">
     </head>    
     
     <body>
@@ -40,31 +43,46 @@
                 <tbody>
                 </tbody>
             </table>
-        </div>
 
-        <div id="modal-overlay" class="hidden">
-            <div id="event-modal">
-                <button id="close-modal-button" aria-label="Close modal">&times;</button>
-                <form id="event-form">
-                    <h2 id="modal-title">Νέο Συμβάν</h2>
-                    <label>Τίτλος: <input type="text" id="event-title" required></label>
-                    <label>Περιγραφή: <textarea id="event-description"></textarea></label>
-                    <label>Ημερομηνία: <input type="date" id="event-date" required></label>
-                    <label class="all-day-label">
-                        <input type="checkbox" id="all-day-event">
-                        Όλη την ημέρα
-                    </label>
-                    <label>Ώρα: <input type="time" id="event-time" required></label>
-                    <button type="submit">Αποθήκευση</button>
-                    <button type="button" id="close-modal">Ακύρωση</button>
-                </form>
-                <div id="event-list"></div>
+            <div id="export-container">
+                <button id="export-events" class="icon-button" title="Εξαγωγή Συμβάντων">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zm-7 8H5v2h14v-2h-7z"/>
+                    </svg>
+                </button>
             </div>
         </div>
 
-        <div id="search-container">
-            <button id="export-events">Εξαγωγή Συμβάντων</button>
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div id="event-modal" class="modal">
+                <button id="close-modal-button" class="modal-close-button" aria-label="Close modal">&times;</button>
+                <form id="event-form" class="modal-form">
+                    <h2 id="modal-title" class="modal-title">Νέο Συμβάν</h2>
+                    <label class="modal-label">Τίτλος: 
+                        <input type="text" id="event-title" class="modal-input" required>
+                    </label>
+                    <label class="modal-label">Περιγραφή: 
+                        <textarea id="event-description" class="modal-textarea"></textarea>
+                    </label>
+                    <label class="modal-label">Ημερομηνία: 
+                        <input type="date" id="event-date" class="modal-input" required>
+                    </label>
+                    <label class="modal-label all-day-label">
+                        <input type="checkbox" id="all-day-event" class="modal-checkbox">
+                        Όλη την ημέρα
+                    </label>
+                    <label class="modal-label">Ώρα: 
+                        <input type="time" id="event-time" class="modal-input" required>
+                    </label>
+                    <div class="modal-buttons">
+                        <button type="submit" class="modal-button save-button">Αποθήκευση</button>
+                        <button type="button" id="close-modal" class="modal-button cancel-button">Ακύρωση</button>
+                    </div>
+                </form>
+                <div id="event-list" class="modal-event-list"></div>
+            </div>
         </div>
+        
         
         <div id="notification-container"></div>
 

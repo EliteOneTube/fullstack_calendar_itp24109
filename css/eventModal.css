@@ -1,0 +1,194 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Modal Container */
+.modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+/* Modal Title */
+.modal-title {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Modal Label */
+.modal-label {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #555;
+}
+
+/* Modal Input */
+.modal-input,
+.modal-textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+/* Modal Checkbox */
+.modal-checkbox {
+    margin-right: 5px;
+}
+
+/* Modal Buttons */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.modal-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.save-button {
+    background: #007bff;
+    color: white;
+}
+
+.save-button:hover {
+    background: #0056b3;
+}
+
+.cancel-button {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.cancel-button:hover {
+    background: #d6d6d6;
+}
+
+/* Close Button */
+.modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.2em;
+    color: #888;
+    cursor: pointer;
+}
+
+.modal-close-button:hover {
+    color: #555;
+}
+
+/* Event List Section */
+.modal-event-list {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .modal {
+        padding: 15px;
+    }
+    .modal-title {
+        font-size: 1.3em;
+    }
+}
+
+.event-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Space between elements inside the item */
+    background: #f9f9f9; /* Light background for contrast */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Internal spacing */
+    margin-bottom: 10px; /* Space between items */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add interactivity */
+}
+
+.event-item:hover {
+    transform: scale(1.02); /* Slight zoom effect on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.event-item h4 {
+    font-size: 16px; /* Adjusted size for titles */
+    font-weight: 500; /* Medium weight for emphasis */
+    margin: 0;
+    color: #333; /* Darker text for contrast */
+}
+
+.event-item p {
+    font-size: 14px; /* Slightly smaller size for descriptions */
+    color: #555; /* Subtle text color for descriptions */
+    margin: 0;
+    line-height: 1.4; /* Better readability */
+}
+
+.event-item button {
+    background-color: #007bff; /* Primary color for buttons */
+    color: white; /* Button text color */
+    border: none; /* Remove default borders */
+    border-radius: 5px; /* Rounded corners for buttons */
+    padding: 8px 12px; /* Button padding */
+    cursor: pointer; /* Pointer cursor for buttons */
+    font-size: 14px; /* Font size for buttons */
+    transition: background-color 0.2s ease; /* Smooth color transition */
+}
+
+.event-item button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+.event-item .delete-event {
+    background-color: #dc3545; /* Red for delete button */
+}
+
+.event-item .delete-event:hover {
+    background-color: #a71d2a; /* Darker red on hover */
+}
+
+.event-item .edit-event {
+    background-color: #28a745; /* Green for edit button */
+}
+
+.event-item .edit-event:hover {
+    background-color: #1e7e34; /* Darker green on hover */
+}
