@@ -118,6 +118,9 @@
     margin-top: 20px;
     font-size: 0.9em;
     color: #555;
+    max-height: 300px; /* Set the desired fixed height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 10px; /* Optional: Add padding inside the container */
 }
 
 /* Responsive Design */
