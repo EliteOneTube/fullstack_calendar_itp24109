@@ -10,7 +10,8 @@ const prevMonthButton = document.getElementById('prev-month');
 const nextMonthButton = document.getElementById('next-month');
 const modalOverlay = document.getElementById('modal-overlay');
 const allDayEventCheckbox = document.getElementById('all-day-event');
-const eventTimeInput = document.getElementById('event-time');
+const startTimeInput = document.getElementById('event-start-time');
+const endTimeInput = document.getElementById('event-end-time');
 const dropdown = document.getElementById('search-results');
 
 let events = {}; // Change from array to object
@@ -89,16 +90,29 @@ nextMonthButton.addEventListener('click', () => {
 
 allDayEventCheckbox.addEventListener('change', () => {
     if (allDayEventCheckbox.checked) {
-        eventTimeInput.disabled = true; // Disable time input
-        eventTimeInput.value = ''; // Clear time input
+        startTimeInput.disabled = true;
+        endTimeInput.disabled = true;
+        startTimeInput.value = '';
+        endTimeInput.value = '';
     } else {
-        eventTimeInput.disabled = false; // Enable time input
-        const now = new Date(); // Set default time again
-        const currentHour = String(now.getHours()).padStart(2, '0');
-        const currentMinute = String(now.getMinutes()).padStart(2, '0');
-        eventTimeInput.value = `${currentHour}:${currentMinute}`;
+        startTimeInput.disabled = false;
+        endTimeInput.disabled = false;
+        setDefaultTimes();
     }
 });
+
+function setDefaultTimes() {
+    const now = new Date();
+    const currentHour = String(now.getHours()).padStart(2, '0');
+    const currentMinute = String(now.getMinutes()).padStart(2, '0');
+
+    const end = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes later
+    const endHour = String(end.getHours()).padStart(2, '0');
+    const endMinute = String(end.getMinutes()).padStart(2, '0');
+
+    startTimeInput.value = `${currentHour}:${currentMinute}`;
+    endTimeInput.value = `${endHour}:${endMinute}`;
+}
 
 function openEventModal(day, eventsOnThisDay, selectedDate) {
     modalOverlay.classList.remove('hidden');
@@ -108,17 +122,14 @@ function openEventModal(day, eventsOnThisDay, selectedDate) {
     const eventList = document.getElementById('event-list');
     eventList.innerHTML = '';
 
-    // Preselect current time
-    const now = new Date();
-    const currentHour = String(now.getHours()).padStart(2, '0');
-    const currentMinute = String(now.getMinutes()).padStart(2, '0');
-    eventTimeInput.value = `${currentHour}:${currentMinute}`;
+    if (!allDayEventCheckbox.checked) setDefaultTimes();
+
     if (eventsOnThisDay.length > 0) {
         eventsOnThisDay.forEach((event, index) => {
             const listItem = document.createElement('div');
             listItem.className = 'event-item';
             listItem.innerHTML = `
-                <h4>${event.title} (${event.isAllDay ? 'Όλη την ημέρα' : event.time})</h4>
+                <h4>${event.title} (${event.isAllDay ? 'Όλη την ημέρα' : `${event.startTime} - ${event.endTime}`})</h4>
                 <p>${event.description}</p>
                 <button data-index="${index}" class="edit-event">Επεξεργασία</button>
                 <button data-index="${index}" class="delete-event">Διαγραφή</button>
@@ -146,15 +157,21 @@ function populateFormForEdit(event, date, index) {
     document.getElementById('event-title').value = event.title;
     document.getElementById('event-description').value = event.description;
     document.getElementById('event-date').value = date;
+
     if (event.isAllDay) {
         allDayEventCheckbox.checked = true;
-        eventTimeInput.disabled = true;
-        eventTimeInput.value = '';
+        startTimeInput.disabled = true;
+        endTimeInput.disabled = true;
+        startTimeInput.value = '';
+        endTimeInput.value = '';
     } else {
         allDayEventCheckbox.checked = false;
-        eventTimeInput.disabled = false;
-        eventTimeInput.value = event.time;
+        startTimeInput.disabled = false;
+        endTimeInput.disabled = false;
+        startTimeInput.value = event.startTime;
+        endTimeInput.value = event.endTime;
     }
+
     eventModal.dataset.editIndex = index;
     eventModal.dataset.editDate = date;
 }
@@ -185,31 +202,40 @@ closeModalButton.addEventListener('click', closeModal);
 
 eventForm.addEventListener('submit', (e) => {
     e.preventDefault();
+
     const title = document.getElementById('event-title').value;
     const description = document.getElementById('event-description').value;
     const date = document.getElementById('event-date').value;
     const isAllDay = allDayEventCheckbox.checked;
-    const time = isAllDay ? 'Όλη την ημέρα' : document.getElementById('event-time').value;
+    const startTime = isAllDay ? 'Όλη την ημέρα' : document.getElementById('event-start-time').value;
+    const endTime = isAllDay ? 'Όλη την ημέρα' : document.getElementById('event-end-time').value;
+
+    // Validate start and end times
+    if (!isAllDay && startTime && endTime && startTime >= endTime) {
+        showNotification('Η ώρα έναρξης πρέπει να είναι πριν από την ώρα λήξης.', 'error');
+        return;
+    }
 
     const editIndex = eventModal.dataset.editIndex;
     const editDate = eventModal.dataset.editDate;
 
     if (editIndex !== null && editDate === date) {
         // Update existing event
-        events[date][editIndex] = { title, description, date, time, isAllDay };
+        events[date][editIndex] = { title, description, date, startTime, endTime, isAllDay };
     } else {
         // Add new event
         if (!events[date]) {
             events[date] = [];
         }
-        events[date].push({ title, description, date, time, isAllDay });
+        events[date].push({ title, description, date, startTime, endTime, isAllDay });
     }
 
-    saveEventsToLocalStorage(); // Save to localStorage
+    saveEventsToLocalStorage();
     showNotification('Το συμβάν αποθηκεύτηκε επιτυχώς!');
     closeModal();
     createCalendar(); // Refresh calendar
 });
+
 
 function deleteEvent(date, index) {
     if (events[date]) {
@@ -275,11 +301,11 @@ exportButton.addEventListener('click', () => {
     const rows = Object.entries(events).flatMap(([date, eventList]) =>
         eventList.map(e =>
             [
-                `"${e.title}"`,        // Enclose in quotes to handle special characters
+                `"${e.title}"`,
                 `"${e.description}"`,
                 `"${date}"`,
-                `"${e.time}"`
-            ].join(';')              // Use semicolon as the delimiter
+                `"${e.startTime} - ${e.endTime}"`
+            ].join(';')
         )
     );
 
